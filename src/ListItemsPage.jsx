@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
-import { AutoSizer, WindowScroller } from "react-virtualized";
+import { WindowScroller } from "react-virtualized";
 
 import "./ListItemsPage.css";
-import "react-virtualized/styles.css"; // only needs to be imported once
-import ListItemsInfiniteLoader from "./ListItemsInfiniteLoader";
+import "react-virtualized/styles.css";
+import ListItemsInfiniteLoaderMasonry from "./ListItemsInfiniteLoaderMasonry";
 
 const LOAD_STATUS = {
   IDLE: "idle",
@@ -18,21 +18,25 @@ export default function ListItemsPage({ customElement }) {
 
   console.log(customElement);
   return (
-    <WindowScroller scrollElement={customElement || window}>
-      {({ width, height, isScrolling, registerChild, scrollTop }) => (
-        <>
-          <div className="filters">filters area</div>
-          <div ref={registerChild}>
-            <ListItemsInfiniteLoader
-              height={height}
-              width={width}
-              isScrolling={isScrolling}
-              scrollTop={scrollTop}
-            />
-          </div>
-          {loadStatus === LOAD_STATUS.LOADING && <div>Loading...</div>}
-        </>
-      )}
-    </WindowScroller>
+    <div className="page">
+      <WindowScroller scrollElement={customElement || window}>
+        {({ width, height, isScrolling, registerChild, scrollTop }) => (
+          <>
+            <div className="page-filters">filters area</div>
+            <div ref={registerChild}>
+              <ListItemsInfiniteLoaderMasonry
+                height={height}
+                width={width}
+                isScrolling={isScrolling}
+                scrollTop={scrollTop}
+              />
+            </div>
+            <div className="page-bottom">
+              {loadStatus === LOAD_STATUS.LOADING ? "Loading..." : "FINISH!"}
+            </div>
+          </>
+        )}
+      </WindowScroller>{" "}
+    </div>
   );
 }

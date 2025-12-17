@@ -1,5 +1,8 @@
-/* filters */
-.filters {
+.page {
+  padding: 16px;
+}
+
+.page-filters {
   background-color: #e0e0e0;
   padding: 16px;
   border-radius: 6px;
@@ -8,29 +11,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* list */
-.list {
   box-sizing: border-box;
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, 216px);
-  justify-content: space-around;
-  margin: 0 auto;
-  padding: 4px;
-  width: 100%;
+}
+.page-bottom {
+  background-color: #94cd7f;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 24px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .list-item {
   box-sizing: border-box;
-  width: 200px;
   display: flex;
+  max-width: 200px;
+  min-width: 200px;
+  max-height: 300px;
+  min-height: 300px;
   flex-flow: column;
   gap: 16px;
   background-color: #e0e0e0;
   padding: 16px;
   border-radius: 6px;
+  box-sizing: border-box;
 }
 
 .list-item-title {
@@ -41,8 +48,12 @@
   display: block;
   max-width: 100%;
   background-color: #ffffff;
+  aspect-ratio: 1 / 1;
 }
 
 .list-item-description {
   margin: 0;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

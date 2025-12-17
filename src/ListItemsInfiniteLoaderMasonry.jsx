@@ -1,21 +1,46 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, forwardRef } from "react";
 import fetchProducts from "./fetchProducts";
 
-import { WindowScroller, InfiniteLoader, List } from "react-virtualized";
+import {
+  CellMeasurer,
+  CellMeasurerCache,
+  createMasonryCellPositioner,
+  InfiniteLoader,
+  Masonry,
+} from "react-virtualized";
 
 import "react-virtualized/styles.css";
 import "./ListItemsPage.css";
 
 const initialRowCount = 5000;
+
+const columnWidth = 200;
+const defaultHeight = 300;
+const spacer = 16;
+const defaultWidth = columnWidth;
+
+const cache = new CellMeasurerCache({
+  defaultHeight,
+  defaultWidth,
+  fixedWidth: true,
+});
+
+const cellPositioner = createMasonryCellPositioner({
+  cellMeasurerCache: cache,
+  columnCount: 2, //TODO: calculate from available space
+  columnWidth,
+  spacer,
+});
+
 const getItemKey = (index) => `_${index}_`;
 
-export default function ListItemsInfiniteLoader({
+export default function ListItemsInfiniteLoaderMasonry({
   height,
   width,
   isScrolling,
   scrollTop,
 }) {
-  const [rowCount, setRowCount] = useState(initialRowCount);
+  const [numRows, setNumRows] = useState(initialRowCount);
   const listItemsMapRef = useRef(new Map());
 
   function getDataItem({ index }) {
@@ -56,33 +81,36 @@ export default function ListItemsInfiniteLoader({
           }
         });
 
-        setRowCount(total);
+        setNumRows(total);
       }
     } catch (err) {
       console.error(err);
     }
   }, []);
 
-  function rowRenderer({ key, index, style }) {
+  function cellRenderer({ index, key, parent, style }) {
     const dataItem = getDataItem({ index });
 
-    if (!dataItem)
-      return (
-        <div className="list-item" html-id={index} key={key} style={style}>
-          {index} - {key} - Loading...
-        </div>
-      );
-
     return (
-      <div className="list-item" html-id={index} key={key} style={style}>
-        <p className="list-item-title">
-          {index} - {key} - {dataItem.id} - {dataItem.title}
-        </p>
-        {/*
-          <img className="list-item-thumbnail" src={dataItem.thumbnail} alt={title} />
-          <p className="list-item-description">{dataItem.description}</p> 
-        */}
-      </div>
+      <CellMeasurer cache={cache} index={index} key={key} parent={parent}>
+        <div className="list-item" style={style}>
+          {dataItem ? (
+            <>
+              <p className="list-item-title">
+                {dataItem.id} - {dataItem.title}
+              </p>
+              <img
+                className="list-item-thumbnail"
+                src={dataItem.thumbnail}
+                alt={dataItem.title}
+              />
+              <p className="list-item-description">{dataItem.description}</p>
+            </>
+          ) : (
+            "Loading..."
+          )}
+        </div>
+      </CellMeasurer>
     );
   }
 
@@ -90,21 +118,21 @@ export default function ListItemsInfiniteLoader({
     <InfiniteLoader
       isRowLoaded={isRowLoaded}
       loadMoreRows={loadMoreRows}
-      rowCount={rowCount}
+      rowCount={numRows}
     >
       {({ onRowsRendered, registerChild }) => (
-        <List
+        <Masonry
+          onCellsRendered={onRowsRendered}
+          ref={registerChild}
+          cellCount={numRows}
+          cellMeasurerCache={cache}
+          cellPositioner={cellPositioner}
+          cellRenderer={cellRenderer}
           autoHeight
           height={height}
           isScrolling={isScrolling}
           scrollTop={scrollTop}
-          autoWidth
-          width={width}
-          onRowsRendered={onRowsRendered}
-          ref={registerChild}
-          rowCount={rowCount}
-          rowHeight={60}
-          rowRenderer={rowRenderer}
+          width={width - spacer * 2}
         />
       )}
     </InfiniteLoader>
