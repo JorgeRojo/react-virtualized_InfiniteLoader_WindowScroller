@@ -1,55 +1,38 @@
-import React, { useEffect, useState } from "react";
-import fetchProducts from "./fetchProducts";
+import React, { useState, useRef } from "react";
+
+import { AutoSizer, WindowScroller } from "react-virtualized";
 
 import "./ListItemsPage.css";
+import "react-virtualized/styles.css"; // only needs to be imported once
+import ListItemsInfiniteLoader from "./ListItemsInfiniteLoader";
 
-const getPagekey = (page = 0) => `page_${page}`;
-const getPlainListItems = (itemsPerPage) => Object.values(itemsPerPage).flat();
+const LOAD_STATUS = {
+  IDLE: "idle",
+  LOADING: "loading",
+  LOAD_SUCCESS: "load_success",
+  LOAD_ERROR: "load_error",
+};
 
-export default function ListItemsPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState({
-    [getPagekey(page)]: [],
-  });
+export default function ListItemsPage({ customElement }) {
+  const [loadStatus, setLoadStatus] = useState(LOAD_STATUS.IDLE);
 
-  useEffect(() => {
-    const loadItems = async () => {
-      try {
-        setIsLoading(true);
-        const newProducts = await fetchProducts(page);
-
-        if (newProducts) {
-          setItemsPerPage((state) => ({
-            ...state,
-            [getPagekey(page)]: newProducts,
-          }));
-        }
-      } catch (err) {
-        console.error("Error en el efecto:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadItems();
-  }, [page]);
-
-  const products = getPlainListItems(itemsPerPage);
-
+  console.log(customElement);
   return (
-    <>
-      <div className="filters">filters area</div>
-      <div className="list">
-        {products.map(({ title, thumbnail, description }, index) => (
-          <div className="list-item" key={index}>
-            <h3 className="list-item-title">{title}</h3>
-            <img className="list-item-thumbnail" src={thumbnail} alt={title} />
-            <p className="list-item-description">{description}</p>
+    <WindowScroller scrollElement={customElement || window}>
+      {({ width, height, isScrolling, registerChild, scrollTop }) => (
+        <>
+          <div className="filters">filters area</div>
+          <div ref={registerChild}>
+            <ListItemsInfiniteLoader
+              height={height}
+              width={width}
+              isScrolling={isScrolling}
+              scrollTop={scrollTop}
+            />
           </div>
-        ))}
-      </div>
-      {isLoading && <div>Loading...</div>}
-    </>
+          {loadStatus === LOAD_STATUS.LOADING && <div>Loading...</div>}
+        </>
+      )}
+    </WindowScroller>
   );
 }

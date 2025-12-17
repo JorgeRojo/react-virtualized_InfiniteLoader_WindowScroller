@@ -23,6 +23,7 @@
 }
 
 .list-item {
+  box-sizing: border-box;
   width: 200px;
   display: flex;
   flex-flow: column;
