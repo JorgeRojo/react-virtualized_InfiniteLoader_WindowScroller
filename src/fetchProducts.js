@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const fetchProducts = async (page = 0, size = 1) => {
+export const pageSize = 25;
+
+const fetchProducts = async (page, size) => {
   try {
     const skip = page * size;
 

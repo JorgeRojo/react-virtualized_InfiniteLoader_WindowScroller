@@ -1,10 +1,11 @@
 import React, { useRef, useState, useCallback } from "react";
-import fetchProducts from "./fetchProducts";
+import fetchProducts, { pageSize } from "./fetchProducts";
 
 import { InfiniteLoader } from "react-virtualized";
+
 import ListItemsMasonry from "./ListItemsMasonry";
 
-const INITIAL_LIST_ITEMS_COUNT = 5000;
+const INITIAL_LIST_ITEMS_COUNT = pageSize;
 
 const getItemKey = (index) => `_${index}_`;
 
@@ -18,10 +19,12 @@ export default function ListItemsInfiniteLoader({
   const [listItemsCount, setListItemsCount] = useState(
     INITIAL_LIST_ITEMS_COUNT
   );
-  const listItemsMapRef = useRef(new Map());
+  const infiniteLoaderRef = useRef();
+  const listItemsMapRef = useRef({});
+  const pagesLoadedRef = useRef([]);
 
   const getDataItemByIndex = useCallback(({ index }) => {
-    return listItemsMapRef.current.get(getItemKey(index));
+    return listItemsMapRef.current[getItemKey(index)];
   }, []);
 
   const isRowLoaded = useCallback(({ index }) => {
@@ -29,29 +32,26 @@ export default function ListItemsInfiniteLoader({
   }, []);
 
   const loadMoreRows = useCallback(async ({ startIndex, stopIndex }) => {
-    const pageSize = stopIndex - startIndex || 1;
-    const currentPage = Math.round(startIndex / pageSize);
+    console.log({ startIndex, stopIndex });
+
+    const page = Math.floor(startIndex / pageSize);
+
+    if (pagesLoadedRef.current.includes(page)) {
+      return;
+    }
+
+    pagesLoadedRef.current.push(page);
 
     try {
-      const { dataItems: newDataItems, total } = await fetchProducts(
-        currentPage,
-        pageSize
-      );
-
-      if (total && !isNaN(total) && Array.isArray(newDataItems)) {
-        Array.from({ length: total }, () => null).forEach((_, index) => {
-          if (!listItemsMapRef.current.has(getItemKey(index))) {
-            listItemsMapRef.current.set(getItemKey(index), null);
-          }
-
-          if (index >= startIndex) {
-            listItemsMapRef.current.set(
-              getItemKey(index),
-              newDataItems[index - startIndex]
-            );
-          }
+      const { dataItems, total } = await fetchProducts(page, pageSize);
+      if (total && !isNaN(total) && Array.isArray(dataItems)) {
+        dataItems.forEach((dataItem, index) => {
+          listItemsMapRef.current[getItemKey(startIndex + index)] = dataItem;
         });
 
+        console.log(infiniteLoaderRef.current);
+
+        infiniteLoaderRef.current.resetLoadMoreRowsCache(true);
         setListItemsCount(total);
       }
     } catch (err) {
@@ -61,9 +61,12 @@ export default function ListItemsInfiniteLoader({
 
   return (
     <InfiniteLoader
+      ref={infiniteLoaderRef}
       isRowLoaded={isRowLoaded}
       loadMoreRows={loadMoreRows}
       rowCount={listItemsCount}
+      threshold={pageSize}
+      minimumBatchSize={pageSize}
     >
       {({ onRowsRendered, registerChild }) => (
         <ListItemsMasonry
