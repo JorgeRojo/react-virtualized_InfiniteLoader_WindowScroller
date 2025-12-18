@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 
 import {
   CellMeasurer,
@@ -7,6 +7,7 @@ import {
   Masonry,
 } from "react-virtualized";
 
+import ListItemsMasonryCellItem from "./ListItemsMasonryCellItem";
 import "./ListItemsMasonry.css";
 
 const ITEM_WIDTH = 200;
@@ -47,6 +48,7 @@ export default function ListItemsMasonry({
       defaultHeight: DEFAULT_ITEM_HEIGHT,
       defaultWidth: DEFAULT_ITEM_WIDTH,
       fixedWidth: true,
+      fixedHeight: true,
     })
   );
 
@@ -63,7 +65,7 @@ export default function ListItemsMasonry({
     })
   );
 
-  useEffect(() => {
+  const resetMasonry = useCallback(() => {
     cellPositionerRef.current.reset({
       columnCount,
       columnWidth: ITEM_WIDTH,
@@ -71,43 +73,41 @@ export default function ListItemsMasonry({
     });
     cellMeasurerCacheRef.current.clearAll();
     masonryRef.current.clearCellPositions();
-  }, [scrollAreaWidth, columnCount]);
+  }, [columnCount]);
 
-  function cellRenderer({ index, key, parent, style }) {
-    const leftItemPosition = getLeftItemPositionForSpaceAround({
-      index,
-      columnCount,
-      scrollAreaWidth,
-    });
-    const dataItem = getDataItemByIndex({ index });
+  useEffect(() => {
+    resetMasonry();
+  }, [scrollAreaWidth, columnCount, resetMasonry]);
 
-    return (
-      <CellMeasurer
-        cache={cellMeasurerCacheRef.current}
-        index={index}
-        key={key}
-        parent={parent}
-      >
-        <div className="list-item" style={{ ...style, left: leftItemPosition }}>
-          {dataItem ? (
-            <>
-              <p className="list-item-title">
-                {dataItem.id} - {dataItem.title}
-              </p>
-              <img
-                className="list-item-thumbnail"
-                src={dataItem.thumbnail}
-                alt={dataItem.title}
-              />
-              <p className="list-item-description">{dataItem.description}</p>
-            </>
-          ) : (
-            "Loading..."
+  const cellRenderer = useCallback(
+    ({ index, key, parent, style }) => {
+      const leftItemPosition = getLeftItemPositionForSpaceAround({
+        index,
+        columnCount,
+        scrollAreaWidth,
+      });
+
+      return (
+        <CellMeasurer
+          cache={cellMeasurerCacheRef.current}
+          index={index}
+          key={key}
+          parent={parent}
+        >
+          {({ registerChild }) => (
+            <ListItemsMasonryCellItem
+              ref={registerChild}
+              index={index}
+              getDataItemByIndex={getDataItemByIndex}
+              leftItemPosition={leftItemPosition}
+              style={style}
+            />
           )}
-        </div>
-      </CellMeasurer>
-    );
-  }
+        </CellMeasurer>
+      );
+    },
+    [columnCount, scrollAreaWidth, getDataItemByIndex]
+  );
 
   return (
     <Masonry
