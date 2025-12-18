@@ -14,6 +14,20 @@ const DEFAULT_ITEM_HEIGHT = 300;
 const DEFAULT_ITEM_WIDTH = ITEM_WIDTH;
 const GRID_SPACER = 24;
 
+function getLeftItemPositionForSpaceAround({index, columnCount, availableWidth}) {
+  const indexInRow = index % columnCount; 
+  const totalItemsWidth = columnCount * ITEM_WIDTH;
+  const availableSpace = availableWidth - totalItemsWidth;
+ 
+  if (columnCount === 1) { 
+      return availableSpace / 2;
+  } else { 
+      const gap = availableSpace / (columnCount - 1); 
+      return indexInRow * (ITEM_WIDTH + gap);
+  }
+}
+
+
 export default function ListItemsMasonry({
   cellCount,
   getDataItemByIndex,
@@ -26,6 +40,7 @@ export default function ListItemsMasonry({
 }) {
   const availableWidth = width - GRID_SPACER * 2;
 
+  const masonryRef = useRef(registerChild);
   const cellMeasurerCacheRef = useRef(
     new CellMeasurerCache({
       defaultHeight: DEFAULT_ITEM_HEIGHT,
@@ -34,7 +49,34 @@ export default function ListItemsMasonry({
     })
   );
 
+  const columnCount = Math.floor(
+    (availableWidth - GRID_SPACER / 2) / (ITEM_WIDTH + GRID_SPACER / 2)
+  );
+
+  const cellPositionerRef = useRef(
+    createMasonryCellPositioner({
+      cellMeasurerCache: cellMeasurerCacheRef.current,
+      columnCount,
+      columnWidth: ITEM_WIDTH,
+      spacer: GRID_SPACER,
+    })
+  );
+
+  useEffect(() => {
+    cellPositionerRef.current.reset({
+      columnCount,
+      columnWidth: ITEM_WIDTH,
+      spacer: GRID_SPACER,
+    });
+    cellMeasurerCacheRef.current.clearAll();
+    masonryRef.current.clearCellPositions();
+  }, [availableWidth, columnCount]);
+
+
+
+
   function cellRenderer({ index, key, parent, style }) {
+    const leftItemPosition = getLeftItemPositionForSpaceAround({index, columnCount, availableWidth});
     const dataItem = getDataItemByIndex({ index });
 
     return (
@@ -44,7 +86,7 @@ export default function ListItemsMasonry({
         key={key}
         parent={parent}
       >
-        <div className="list-item" style={style}>
+        <div className="list-item" style={{ ...style, left: leftItemPosition }}>
           {dataItem ? (
             <>
               <p className="list-item-title">
@@ -65,21 +107,6 @@ export default function ListItemsMasonry({
     );
   }
 
-  const getCellPositioner = useCallback((availableWidth) => {
-    const columnCount = Math.floor(
-      availableWidth / (ITEM_WIDTH + GRID_SPACER * 2)
-    );
-
-    return createMasonryCellPositioner({
-      cellMeasurerCache: cellMeasurerCacheRef.current,
-      columnCount,
-      columnWidth: ITEM_WIDTH,
-      spacer: GRID_SPACER,
-    });
-  }, []);
-
-  const cellPositionerRef = useRef(getCellPositioner(availableWidth));
-
   return (
     <Masonry
       autoHeight
@@ -90,7 +117,7 @@ export default function ListItemsMasonry({
       height={height}
       isScrolling={isScrolling}
       onCellsRendered={onCellsRendered}
-      ref={registerChild}
+      ref={masonryRef}
       scrollTop={scrollTop}
       width={availableWidth}
     />
