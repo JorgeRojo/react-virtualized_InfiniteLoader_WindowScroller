@@ -22,7 +22,6 @@
 }
 .layout-main {
   grid-area: content;
-  overflow: auto;
 }
 .layout-footer {
   grid-area: footer;
@@ -47,7 +46,6 @@
 }
 .layout-main {
   background-color: #ffffff;
-  overlay: auto;
 }
 .layout-footer {
   background-color: #818181;

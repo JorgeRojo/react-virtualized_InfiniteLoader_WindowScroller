@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, forwardRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import fetchProducts from "./fetchProducts";
 
 import { InfiniteLoader } from "react-virtualized";
@@ -9,10 +9,11 @@ const INITIAL_LIST_ITEMS_COUNT = 5000;
 const getItemKey = (index) => `_${index}_`;
 
 export default function ListItemsInfiniteLoader({
+  handleOnResize,
   height,
   isScrolling,
   scrollTop,
-  width,
+  scrollAreaWidth,
 }) {
   const [listItemsCount, setListItemsCount] = useState(
     INITIAL_LIST_ITEMS_COUNT
@@ -23,9 +24,9 @@ export default function ListItemsInfiniteLoader({
     return listItemsMapRef.current.get(getItemKey(index));
   }, []);
 
-  function isRowLoaded({ index }) {
+  const isRowLoaded = useCallback(({ index }) => {
     return getDataItemByIndex({ index }) != null;
-  }
+  }, []);
 
   const loadMoreRows = useCallback(async ({ startIndex, stopIndex }) => {
     const pageSize = stopIndex - startIndex || 1;
@@ -73,7 +74,8 @@ export default function ListItemsInfiniteLoader({
           onCellsRendered={onRowsRendered}
           registerChild={registerChild}
           scrollTop={scrollTop}
-          width={width}
+          handleOnResize={handleOnResize}
+          scrollAreaWidth={scrollAreaWidth}
         />
       )}
     </InfiniteLoader>

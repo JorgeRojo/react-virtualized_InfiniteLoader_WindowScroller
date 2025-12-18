@@ -2,21 +2,19 @@ import React from "react";
 
 import { WindowScroller } from "react-virtualized";
 
-import ListItemsInfiniteLoader from "./ListItemsInfiniteLoader";
+import ListItemsAutoSizer from "./ListItemsAutoSizer";
 
 import "./PageWindowScroller.css";
 
-export default function PageWindowScroller({ layoutMainHtmlElement }) {
-  console.log(layoutMainHtmlElement);
+export default function PageWindowScroller() {
   return (
-    <WindowScroller scrollElement={layoutMainHtmlElement || window}>
-      {({ width, height, isScrolling, registerChild, scrollTop }) => (
+    <WindowScroller>
+      {({ height, isScrolling, registerChild, scrollTop }) => (
         <div className="page-container">
           <div className="page-filters">filters area</div>
           <div ref={registerChild} className="page-list">
-            <ListItemsInfiniteLoader
+            <ListItemsAutoSizer
               height={height}
-              width={width}
               isScrolling={isScrolling}
               scrollTop={scrollTop}
             />

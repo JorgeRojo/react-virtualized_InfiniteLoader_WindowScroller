@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useEffect } from "react";
 
 import {
   CellMeasurer,
@@ -14,19 +14,22 @@ const DEFAULT_ITEM_HEIGHT = 300;
 const DEFAULT_ITEM_WIDTH = ITEM_WIDTH;
 const GRID_SPACER = 24;
 
-function getLeftItemPositionForSpaceAround({index, columnCount, availableWidth}) {
-  const indexInRow = index % columnCount; 
+function getLeftItemPositionForSpaceAround({
+  index,
+  columnCount,
+  scrollAreaWidth,
+}) {
+  const indexInRow = index % columnCount;
   const totalItemsWidth = columnCount * ITEM_WIDTH;
-  const availableSpace = availableWidth - totalItemsWidth;
- 
-  if (columnCount === 1) { 
-      return availableSpace / 2;
-  } else { 
-      const gap = availableSpace / (columnCount - 1); 
-      return indexInRow * (ITEM_WIDTH + gap);
+  const availableSpace = scrollAreaWidth - totalItemsWidth;
+
+  if (columnCount === 1) {
+    return availableSpace / 2;
+  } else {
+    const gap = availableSpace / (columnCount - 1);
+    return indexInRow * (ITEM_WIDTH + gap);
   }
 }
-
 
 export default function ListItemsMasonry({
   cellCount,
@@ -36,10 +39,8 @@ export default function ListItemsMasonry({
   onCellsRendered,
   registerChild,
   scrollTop,
-  width,
+  scrollAreaWidth,
 }) {
-  const availableWidth = width - GRID_SPACER * 2;
-
   const masonryRef = useRef(registerChild);
   const cellMeasurerCacheRef = useRef(
     new CellMeasurerCache({
@@ -50,7 +51,7 @@ export default function ListItemsMasonry({
   );
 
   const columnCount = Math.floor(
-    (availableWidth - GRID_SPACER / 2) / (ITEM_WIDTH + GRID_SPACER / 2)
+    (scrollAreaWidth - GRID_SPACER / 2) / (ITEM_WIDTH + GRID_SPACER / 2)
   );
 
   const cellPositionerRef = useRef(
@@ -70,13 +71,14 @@ export default function ListItemsMasonry({
     });
     cellMeasurerCacheRef.current.clearAll();
     masonryRef.current.clearCellPositions();
-  }, [availableWidth, columnCount]);
-
-
-
+  }, [scrollAreaWidth, columnCount]);
 
   function cellRenderer({ index, key, parent, style }) {
-    const leftItemPosition = getLeftItemPositionForSpaceAround({index, columnCount, availableWidth});
+    const leftItemPosition = getLeftItemPositionForSpaceAround({
+      index,
+      columnCount,
+      scrollAreaWidth,
+    });
     const dataItem = getDataItemByIndex({ index });
 
     return (
@@ -119,7 +121,7 @@ export default function ListItemsMasonry({
       onCellsRendered={onCellsRendered}
       ref={masonryRef}
       scrollTop={scrollTop}
-      width={availableWidth}
+      width={scrollAreaWidth}
     />
   );
 }
