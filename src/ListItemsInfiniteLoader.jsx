@@ -5,8 +5,6 @@ import { InfiniteLoader } from "react-virtualized";
 
 import ListItemsMasonry from "./ListItemsMasonry";
 
-const INITIAL_LIST_ITEMS_COUNT = pageSize;
-
 const getItemKey = (index) => `_${index}_`;
 
 export default function ListItemsInfiniteLoader({
@@ -16,10 +14,8 @@ export default function ListItemsInfiniteLoader({
   scrollTop,
   scrollAreaWidth,
 }) {
-  const [listItemsCount, setListItemsCount] = useState(
-    INITIAL_LIST_ITEMS_COUNT
-  );
-  const infiniteLoaderRef = useRef();
+  const [listItemsCount, setListItemsCount] = useState(pageSize);
+
   const listItemsMapRef = useRef({});
   const pagesLoadedRef = useRef([]);
 
@@ -49,9 +45,6 @@ export default function ListItemsInfiniteLoader({
           listItemsMapRef.current[getItemKey(startIndex + index)] = dataItem;
         });
 
-        console.log(infiniteLoaderRef.current);
-
-        infiniteLoaderRef.current.resetLoadMoreRowsCache(true);
         setListItemsCount(total);
       }
     } catch (err) {
@@ -61,7 +54,6 @@ export default function ListItemsInfiniteLoader({
 
   return (
     <InfiniteLoader
-      ref={infiniteLoaderRef}
       isRowLoaded={isRowLoaded}
       loadMoreRows={loadMoreRows}
       rowCount={listItemsCount}
