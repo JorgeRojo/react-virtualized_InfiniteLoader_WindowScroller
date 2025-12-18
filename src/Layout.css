@@ -1,12 +1,4 @@
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  font-size: 14px;
-}
-
-.container {
+.layout-container {
   text-align: center;
   display: grid;
   grid-template-areas:
@@ -18,45 +10,45 @@ body {
   height: 100vh;
 }
 
-.header {
+.layout-header {
   grid-area: header;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.menu {
+.layout-menu {
   grid-area: menu;
   padding: 16px;
 }
-.content {
+.layout-main {
   grid-area: content;
   overflow: auto;
 }
-.footer {
+.layout-footer {
   grid-area: footer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.header,
-.menu,
-.content,
-.footer {
+.layout-header,
+.layout-menu,
+.layout-main,
+.layout-footer {
   background-color: #ffffff;
 }
-.header {
+.layout-header {
   background-color: #0d2839;
   color: aliceblue;
 }
-.menu {
+.layout-menu {
   background-color: #113851;
   color: aliceblue;
 }
-.content {
+.layout-main {
   background-color: #ffffff;
   overlay: auto;
 }
-.footer {
+.layout-footer {
   background-color: #818181;
 }
