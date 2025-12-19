@@ -1,3 +1,4 @@
 .vscode
 .amazonq
 node_modules
+coverage

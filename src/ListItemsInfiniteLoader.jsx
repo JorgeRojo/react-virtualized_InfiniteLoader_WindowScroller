@@ -28,7 +28,6 @@ export default function ListItemsInfiniteLoader({
   }, []);
 
   const loadMoreRows = useCallback(async ({ startIndex, stopIndex }) => {
-    console.log({ startIndex, stopIndex });
 
     const page = Math.floor(startIndex / pageSize);
 
