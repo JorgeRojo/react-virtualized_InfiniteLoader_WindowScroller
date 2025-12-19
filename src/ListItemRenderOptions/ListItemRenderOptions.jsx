@@ -8,8 +8,8 @@ export default function ListItemRenderOptions() {
     <div>
       <h3>Configure product visible items:</h3>
       {Object.entries(options).map(([key, visible]) => (
-        <>
-          <label key={key}>
+        <React.Fragment key={key}>
+          <label>
             <input
               type="checkbox"
               checked={visible}
@@ -18,7 +18,7 @@ export default function ListItemRenderOptions() {
             {key}
           </label>
           <br />
-        </>
+        </React.Fragment>
       ))}
     </div>
   );
