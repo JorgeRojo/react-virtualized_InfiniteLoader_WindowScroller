@@ -11,7 +11,7 @@ import ListItemsMasonryCellItem from "./ListItemsMasonryCellItem";
 import "./ListItemsMasonry.css";
 
 const ITEM_WIDTH = 200;
-const DEFAULT_ITEM_HEIGHT = 300;
+const DEFAULT_ITEM_HEIGHT = 350;
 const DEFAULT_ITEM_WIDTH = ITEM_WIDTH;
 const GRID_SPACER = 24;
 
