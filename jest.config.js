@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
   testMatch: ['**/__tests__/**/*.(test|spec).[jt]s?(x)'],
