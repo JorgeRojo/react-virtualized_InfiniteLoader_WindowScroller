@@ -7,7 +7,8 @@
     "menu footer footer";
   grid-template-rows: 60px 1fr 30px;
   grid-template-columns: 140px 1fr 1fr;
-  height: 100vh;
+  min-height: 100vh;
+  position: relative;
 }
 
 .layout-header {
@@ -35,14 +36,23 @@
 .layout-main,
 .layout-footer {
   background-color: #ffffff;
+  position: relative;
+  z-index: 1;
 }
 .layout-header {
   background-color: #0d2839;
   color: aliceblue;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 .layout-menu {
-  background-color: #113851;
+  background-color: #146292;
   color: aliceblue;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  max-height: 100vh;
 }
 .layout-main {
   background-color: #ffffff;
