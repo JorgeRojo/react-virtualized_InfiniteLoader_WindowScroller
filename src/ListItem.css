@@ -1,0 +1,49 @@
+.list-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column;
+  background-color: #e0e0e0;
+  padding: 0 16px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.list-item-metadata {
+  font-size: 12px;
+  height: 16px;
+  line-height: 16px;
+  margin: 0;
+  padding: 8px;
+}
+.list-item-title {
+  margin: 0;
+  padding: 0;
+  background-color: rgb(141, 197, 216, 0.3);
+  font-size: 15px;
+  font-weight: bold;
+}
+.list-item-thumbnail {
+  display: block;
+  background-color: #ffffff;
+  aspect-ratio: 1 / 1;
+}
+.list-item-status {
+  margin: 0;
+  padding: 0;
+  background-color: rgb(141, 216, 172, 0.3);
+  font-size: 12px;
+  font-style: italic;
+}
+.list-item-brand {
+  margin: 0;
+  padding: 0;
+  background-color: rgb(216, 198, 141, 0.3);
+  font-size: 12px;
+  font-weight: bold;
+}
+.list-item-description {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  background-color: rgba(216, 155, 141, 0.3);
+  overflow: auto;
+}

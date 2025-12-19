@@ -5,11 +5,12 @@ import { WindowScroller } from "react-virtualized";
 import ListItemsAutoSizer from "./ListItemsAutoSizer";
 
 import "./PageWindowScroller.css";
+import ListItemRenderOptions from "./ListItemRenderOptions/ListItemRenderOptions";
 
 export default function PageWindowScroller() {
   useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
     window.scrollTo(0, 0);
   }, []);
@@ -18,7 +19,7 @@ export default function PageWindowScroller() {
     <WindowScroller scrollElement={window}>
       {({ height, isScrolling, registerChild, scrollTop }) => (
         <div className="page-container">
-          <div className="page-filters">filters area</div>
+          <div className="page-filters">Filters</div>
           <div ref={registerChild} className="page-list">
             <ListItemsAutoSizer
               height={height}

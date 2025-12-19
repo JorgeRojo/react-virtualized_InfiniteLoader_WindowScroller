@@ -7,11 +7,10 @@ import {
   Masonry,
 } from "react-virtualized";
 
-import ListItemsMasonryCellItem from "./ListItemsMasonryCellItem";
-import "./ListItemsMasonry.css";
+import ListItem from "./ListItem";
+import { useListItemRenderOptions } from "./ListItemRenderOptions/ListItemRenderOptionsContext";
 
 const ITEM_WIDTH = 200;
-const DEFAULT_ITEM_HEIGHT = 350;
 const DEFAULT_ITEM_WIDTH = ITEM_WIDTH;
 const GRID_SPACER = 24;
 
@@ -42,28 +41,34 @@ export default function ListItemsMasonry({
   scrollTop,
   scrollAreaWidth,
 }) {
+  const { height: itemHeight } = useListItemRenderOptions();
   const masonryRef = useRef(registerChild);
-  const cellMeasurerCacheRef = useRef(
-    new CellMeasurerCache({
-      defaultHeight: DEFAULT_ITEM_HEIGHT,
-      defaultWidth: DEFAULT_ITEM_WIDTH,
-      fixedWidth: true,
-      fixedHeight: true,
-    })
-  );
+  const [masonryKey, setMasonryKey] = useState(0);
 
   const columnCount = Math.floor(
     (scrollAreaWidth - GRID_SPACER / 2) / (ITEM_WIDTH + GRID_SPACER / 2)
   );
 
-  const cellPositionerRef = useRef(
-    createMasonryCellPositioner({
+  const cellMeasurerCacheRef = useRef();
+  const cellPositionerRef = useRef();
+
+  if (!cellMeasurerCacheRef.current) {
+    cellMeasurerCacheRef.current = new CellMeasurerCache({
+      defaultHeight: itemHeight,
+      defaultWidth: DEFAULT_ITEM_WIDTH,
+      fixedWidth: true,
+      fixedHeight: true,
+    });
+  }
+
+  if (!cellPositionerRef.current) {
+    cellPositionerRef.current = createMasonryCellPositioner({
       cellMeasurerCache: cellMeasurerCacheRef.current,
       columnCount,
       columnWidth: ITEM_WIDTH,
       spacer: GRID_SPACER,
-    })
-  );
+    });
+  }
 
   const resetMasonry = useCallback(() => {
     cellPositionerRef.current.reset({
@@ -72,8 +77,26 @@ export default function ListItemsMasonry({
       spacer: GRID_SPACER,
     });
     cellMeasurerCacheRef.current.clearAll();
-    masonryRef.current.clearCellPositions();
+    if (masonryRef.current) {
+      masonryRef.current.clearCellPositions();
+    }
   }, [columnCount]);
+
+  useEffect(() => {
+    cellMeasurerCacheRef.current = new CellMeasurerCache({
+      defaultHeight: itemHeight,
+      defaultWidth: DEFAULT_ITEM_WIDTH,
+      fixedWidth: true,
+      fixedHeight: true,
+    });
+    cellPositionerRef.current = createMasonryCellPositioner({
+      cellMeasurerCache: cellMeasurerCacheRef.current,
+      columnCount,
+      columnWidth: ITEM_WIDTH,
+      spacer: GRID_SPACER,
+    });
+    setMasonryKey(prev => prev + 1);
+  }, [itemHeight, columnCount]);
 
   useEffect(() => {
     resetMasonry();
@@ -93,9 +116,11 @@ export default function ListItemsMasonry({
           index={index}
           key={key}
           parent={parent}
+          columnIndex={0}
+          rowIndex={index}
         >
           {({ registerChild }) => (
-            <ListItemsMasonryCellItem
+            <ListItem
               ref={registerChild}
               index={index}
               getDataItemByIndex={getDataItemByIndex}
@@ -113,6 +138,7 @@ export default function ListItemsMasonry({
     <Masonry
       autoHeight
       cellCount={cellCount}
+      key={masonryKey}
       cellMeasurerCache={cellMeasurerCacheRef.current}
       cellPositioner={cellPositionerRef.current}
       cellRenderer={cellRenderer}
